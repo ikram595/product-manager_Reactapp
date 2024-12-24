@@ -1,7 +1,6 @@
 import axios from "axios";
-import dotenv from "dotenv";
-dotenv.config();
-const API_BASE_URL = process.env.API_BASE_URL;
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 export const registerUser = async (userData) => {
   try {
