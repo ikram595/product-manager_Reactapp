@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,15 +7,22 @@ import {
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Navbar from "./components/shared/Navbar";
-import Dashboard from "./components/dashboard/Dashboard";
-import Favorites from "./components/dashboard/Favourites";
-import ProductForm from "./components/product/ProductForm";
-import Login from "./components/auth/Login";
-import Register from "./components/auth/Register";
-import EditForm from "./components/product/EditForm";
+import loading from "./assets/loader.gif";
 
 const App = () => {
   const isAuthenticated = !!localStorage.getItem("token");
+  const Dashboard = React.lazy(() =>
+    import("./components/dashboard/Dashboard")
+  );
+  const Favorites = React.lazy(() =>
+    import("./components/dashboard/Favourites")
+  );
+  const ProductForm = React.lazy(() =>
+    import("./components/product/ProductForm")
+  );
+  const Login = React.lazy(() => import("./components/auth/Login"));
+  const Register = React.lazy(() => import("./components/auth/Register"));
+  const EditForm = React.lazy(() => import("./components/product/EditForm"));
 
   return (
     <Router>
@@ -43,29 +50,43 @@ const App = () => {
             { position: "bottom-center" })
           }
         />
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route
-            path="/dashboard"
-            element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/favorites"
-            element={isAuthenticated ? <Favorites /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/products/edit/:productId"
-            element={isAuthenticated ? <EditForm /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/create"
-            element={
-              isAuthenticated ? <ProductForm /> : <Navigate to="/login" />
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center">
+              <img src={loading} alt="Loading" height={50} width={50} />
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route
+              path="/dashboard"
+              element={
+                isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/favorites"
+              element={
+                isAuthenticated ? <Favorites /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/products/edit/:productId"
+              element={
+                isAuthenticated ? <EditForm /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/create"
+              element={
+                isAuthenticated ? <ProductForm /> : <Navigate to="/login" />
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </Suspense>
       </div>
     </Router>
   );
